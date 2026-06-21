@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Plugin package artifacts
+*.zip
+
+# Signing keys (NEVER commit)
+private.pem
+public.pem
+*.sig
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/
+.idea/

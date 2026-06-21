@@ -1,0 +1,30 @@
+{
+  "id": "caido-lookup",
+  "name": "Disclosure Lookup",
+  "version": "0.1.0",
+  "description": "Look up the security-disclosure contact for any host via lookup.disclose.io. Right-click a request to find where to report a vulnerability.",
+  "author": {
+    "name": "disclose.io",
+    "email": "hi@disclose.io",
+    "url": "https://github.com/disclose/caido-lookup"
+  },
+  "plugins": [
+    {
+      "kind": "frontend",
+      "id": "caido-lookup-frontend",
+      "name": "Disclosure Lookup",
+      "entrypoint": "frontend/script.js",
+      "style": "frontend/style.css",
+      "backend": {
+        "id": "caido-lookup-backend"
+      }
+    },
+    {
+      "kind": "backend",
+      "id": "caido-lookup-backend",
+      "name": "Disclosure Lookup Backend",
+      "runtime": "javascript",
+      "entrypoint": "backend/script.js"
+    }
+  ]
+}

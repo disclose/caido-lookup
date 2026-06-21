@@ -1,0 +1,20 @@
+{
+  "name": "caido-lookup-backend",
+  "version": "0.1.0",
+  "description": "Backend for the Disclosure Lookup Caido plugin",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@caido/sdk-backend": "0.57.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "^5.4.5",
+    "vite": "^5.4.0"
+  }
+}

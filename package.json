@@ -1,0 +1,23 @@
+{
+  "name": "caido-lookup",
+  "version": "0.1.0",
+  "description": "Caido plugin: look up security-disclosure contacts for any host via lookup.disclose.io",
+  "author": "disclose.io <hi@disclose.io>",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/frontend",
+    "packages/backend"
+  ],
+  "scripts": {
+    "build:frontend": "npm run build --workspace packages/frontend",
+    "build:backend": "npm run build --workspace packages/backend",
+    "build": "npm run build:backend && npm run build:frontend && node scripts/package.mjs",
+    "typecheck": "tsc -p packages/backend/tsconfig.json --noEmit && tsc -p packages/frontend/tsconfig.json --noEmit",
+    "clean": "rm -rf dist packages/*/dist *.zip"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
