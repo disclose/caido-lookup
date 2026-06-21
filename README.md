@@ -110,7 +110,7 @@ The official store registry is the GitHub repository [`caido/store`](https://git
      "description": "Look up the security-disclosure contact for any host via lookup.disclose.io.",
      "author": {
        "name": "disclose.io",
-       "email": "hi@disclose.io",
+       "email": "hello@disclose.io",
        "url": "https://disclose.io"
      },
      "public_key": "<BASE64 BODY OF public.pem, no BEGIN/END lines>",

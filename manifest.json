@@ -5,7 +5,7 @@
   "description": "Look up the security-disclosure contact for any host via lookup.disclose.io. Right-click a request to find where to report a vulnerability.",
   "author": {
     "name": "disclose.io",
-    "email": "hi@disclose.io",
+    "email": "hello@disclose.io",
     "url": "https://github.com/disclose/caido-lookup"
   },
   "plugins": [
