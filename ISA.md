@@ -2,11 +2,11 @@
 project: caido-lookup
 task: Build a Caido plugin that looks up security-disclosure contacts via lookup.disclose.io
 effort: E3
-phase: observe
-progress: 0/34
+phase: complete
+progress: 34/34
 mode: build
 started: 2026-06-21T07:40:00Z
-updated: 2026-06-21T07:40:00Z
+updated: 2026-06-21T08:00:00Z
 ---
 
 # caido-lookup — Caido plugin for lookup.disclose.io
@@ -54,40 +54,40 @@ Ship a buildable, idiomatic, frontend+backend Caido plugin in `~/Projects/caido-
 
 ## Criteria
 
-- [ ] ISC-1: `~/Projects/caido-lookup/manifest.json` exists and declares one `frontend` plugin (with `backend` reference) and one `backend` plugin with `runtime: "javascript"`.
-- [ ] ISC-2: `manifest.json` is valid JSON (parses with `node -e`/`jq`).
-- [ ] ISC-3: Frontend source registers a command with id for "Find disclosure contact" via `sdk.commands.register`.
-- [ ] ISC-4: Frontend source registers that command on the context menu via `sdk.menu.registerItem` for both `Request` and `RequestRow` types.
-- [ ] ISC-5: Frontend source registers a sidebar page via `sdk.navigation.addPage` + `sdk.sidebar.registerItem`.
-- [ ] ISC-6: The command handler extracts host from `context.request.host` (Request) and `context.requests[].host` (RequestRow) — verified by grep of those field accesses.
-- [ ] ISC-7: Frontend calls the backend over the RPC bridge (`sdk.backend.<fn>(...)`), not a direct `fetch` from the frontend.
-- [ ] ISC-8: Backend source registers an RPC function via `sdk.api.register("...", ...)`.
-- [ ] ISC-9: Backend performs the lookup with a `fetch` POST to `https://lookup.disclose.io/api/lookup` with JSON body `{ input }` and `Content-Type: application/json`.
-- [ ] ISC-10: Backend parses and returns the documented shape: `status`, `attribution { organization, jurisdiction, confidence }`, `contacts[] { type, value, confidence, verified, label }`.
-- [ ] ISC-11: Backend exports an `API` type and frontend imports it to type `sdk.backend`.
-- [ ] ISC-12: Backend handles non-2xx / network errors without throwing an unhandled error (returns an error-shaped result the UI can render).
-- [ ] ISC-13: Sidebar page renders organization, jurisdiction, confidence, and the contacts list (verified vs unverified distinguished) from the result.
-- [ ] ISC-14: Sidebar page has a manual input field so a user can look up an arbitrary asset, not only via right-click.
-- [ ] ISC-15: `package.json` (frontend) declares `@caido/sdk-frontend` dependency and a `build` script.
-- [ ] ISC-16: `package.json` (backend) declares `@caido/sdk-backend` dependency and a `build` script.
-- [ ] ISC-17: Build tooling (vite config) for frontend emits `dist/frontend/script.js` and copies `manifest.json`, producing a plugin package zip.
-- [ ] ISC-18: Build tooling for backend emits `dist/backend/script.js`.
-- [ ] ISC-19: A top-level build orchestration (root `package.json` script or workspace) builds both frontend and backend and assembles one installable plugin package zip containing `manifest.json` + `frontend/` + `backend/`.
-- [ ] ISC-20: `README.md` exists with install instructions (build → load the plugin package zip in Caido) and usage.
-- [ ] ISC-21: `README.md` documents the Caido-store submission steps (Ed25519 key-pair via openssl, GitHub release, PR to `caido/store` `plugin_packages.json`).
-- [ ] ISC-22: `LICENSE` is MIT with copyright holder `disclose.io`.
-- [ ] ISC-23: `.gitignore` excludes `node_modules`, `dist`, and `*.zip` (and `.DS_Store`).
-- [ ] ISC-24: Dependency install (`npm install` or `pnpm install`) completes successfully.
-- [ ] ISC-25: The build command runs and produces the plugin package zip artifact on disk (path captured) — OR, if the build genuinely cannot run in this environment, the blocker is captured explicitly and the criterion is `[DEFERRED-VERIFY]` with the reason.
-- [ ] ISC-26: TypeScript typechecks (no type errors) for both frontend and backend sources.
-- [ ] ISC-27: `git init` done and first commit authored by `Aurora <aurora@tallpoppygroup.com>` (verified via `git log --format='%an <%ae>'`).
-- [ ] ISC-28: `git ls-files` contains ONLY source — no `node_modules`, no `dist`, no `*.zip`.
-- [ ] ISC-29: Public repo `disclose/caido-lookup` created and pushed via `gh repo create ... --push` (verified via `gh repo view`).
-- [ ] ISC-30: Pushed repo's tracked files match `git ls-files` (remote contains only source).
-- [ ] ISC-31: Repo description and homepage (`https://lookup.disclose.io`) set as specified (verified via `gh repo view --json`).
-- [ ] ISC-32: Anti: the committed/pushed tree contains NO `node_modules/`, `dist/`, or `*.zip` entries.
-- [ ] ISC-33: Anti: the frontend does NOT call `lookup.disclose.io` directly via `fetch` (the egress is backend-only).
-- [ ] ISC-34: Anti: NO Ed25519 signing or store PR is performed in this task (only documented) — no private key generated/committed, no PR opened against `caido/store`.
+- [x] ISC-1: `~/Projects/caido-lookup/manifest.json` exists and declares one `frontend` plugin (with `backend` reference) and one `backend` plugin with `runtime: "javascript"`.
+- [x] ISC-2: `manifest.json` is valid JSON (parses with `node -e`/`jq`).
+- [x] ISC-3: Frontend source registers a command with id for "Find disclosure contact" via `sdk.commands.register`.
+- [x] ISC-4: Frontend source registers that command on the context menu via `sdk.menu.registerItem` for both `Request` and `RequestRow` types.
+- [x] ISC-5: Frontend source registers a sidebar page via `sdk.navigation.addPage` + `sdk.sidebar.registerItem`.
+- [x] ISC-6: The command handler extracts host from `context.request.host` (Request) and `context.requests[].host` (RequestRow) — verified by grep of those field accesses.
+- [x] ISC-7: Frontend calls the backend over the RPC bridge (`sdk.backend.<fn>(...)`), not a direct `fetch` from the frontend.
+- [x] ISC-8: Backend source registers an RPC function via `sdk.api.register("...", ...)`.
+- [x] ISC-9: Backend performs the lookup with a `fetch` POST to `https://lookup.disclose.io/api/lookup` with JSON body `{ input }` and `Content-Type: application/json`.
+- [x] ISC-10: Backend parses and returns the documented shape: `status`, `attribution { organization, jurisdiction, confidence }`, `contacts[] { type, value, confidence, verified, label }`.
+- [x] ISC-11: Backend exports an `API` type and frontend imports it to type `sdk.backend`.
+- [x] ISC-12: Backend handles non-2xx / network errors without throwing an unhandled error (returns an error-shaped result the UI can render).
+- [x] ISC-13: Sidebar page renders organization, jurisdiction, confidence, and the contacts list (verified vs unverified distinguished) from the result.
+- [x] ISC-14: Sidebar page has a manual input field so a user can look up an arbitrary asset, not only via right-click.
+- [x] ISC-15: `package.json` (frontend) declares `@caido/sdk-frontend` dependency and a `build` script.
+- [x] ISC-16: `package.json` (backend) declares `@caido/sdk-backend` dependency and a `build` script.
+- [x] ISC-17: Build tooling (vite config) for frontend emits `dist/frontend/script.js` and copies `manifest.json`, producing a plugin package zip.
+- [x] ISC-18: Build tooling for backend emits `dist/backend/script.js`.
+- [x] ISC-19: A top-level build orchestration (root `package.json` script or workspace) builds both frontend and backend and assembles one installable plugin package zip containing `manifest.json` + `frontend/` + `backend/`.
+- [x] ISC-20: `README.md` exists with install instructions (build → load the plugin package zip in Caido) and usage.
+- [x] ISC-21: `README.md` documents the Caido-store submission steps (Ed25519 key-pair via openssl, GitHub release, PR to `caido/store` `plugin_packages.json`).
+- [x] ISC-22: `LICENSE` is MIT with copyright holder `disclose.io`.
+- [x] ISC-23: `.gitignore` excludes `node_modules`, `dist`, and `*.zip` (and `.DS_Store`).
+- [x] ISC-24: Dependency install (`npm install` or `pnpm install`) completes successfully.
+- [x] ISC-25: The build command runs and produces the plugin package zip artifact on disk (path captured) — OR, if the build genuinely cannot run in this environment, the blocker is captured explicitly and the criterion is `[DEFERRED-VERIFY]` with the reason.
+- [x] ISC-26: TypeScript typechecks (no type errors) for both frontend and backend sources.
+- [x] ISC-27: `git init` done and first commit authored by `Aurora <aurora@tallpoppygroup.com>` (verified via `git log --format='%an <%ae>'`).
+- [x] ISC-28: `git ls-files` contains ONLY source — no `node_modules`, no `dist`, no `*.zip`.
+- [x] ISC-29: Public repo `disclose/caido-lookup` created and pushed via `gh repo create ... --push` (verified via `gh repo view`).
+- [x] ISC-30: Pushed repo's tracked files match `git ls-files` (remote contains only source).
+- [x] ISC-31: Repo description and homepage (`https://lookup.disclose.io`) set as specified (verified via `gh repo view --json`).
+- [x] ISC-32: Anti: the committed/pushed tree contains NO `node_modules/`, `dist/`, or `*.zip` entries.
+- [x] ISC-33: Anti: the frontend does NOT call `lookup.disclose.io` directly via `fetch` (the egress is backend-only).
+- [x] ISC-34: Anti: NO Ed25519 signing or store PR is performed in this task (only documented) — no private key generated/committed, no PR opened against `caido/store`.
 
 ## Test Strategy
 
@@ -128,4 +128,22 @@ Ship a buildable, idiomatic, frontend+backend Caido plugin in `~/Projects/caido-
 
 ## Verification
 
-(pending EXECUTE/VERIFY)
+All 34 ISCs verified 2026-06-21. Repo live: https://github.com/disclose/caido-lookup
+
+- ISC-1,2: manifest.json declares frontend (with backend ref) + backend (runtime:javascript); `node JSON.parse` OK; zip manifest entrypoints = frontend/script.js, backend/script.js.
+- ISC-3,4,5: grep frontend — commands.register(COMMAND_ID "Find disclosure contact"), menu.registerItem ×2 ("Request","RequestRow"), navigation.addPage + sidebar.registerItem.
+- ISC-6: host read via context.request.host (RequestContext/ResponseContext) and context.requests[0].host (RequestRowContext) — discriminants verified vs commands.d.ts.
+- ISC-7,33: frontend calls sdk.backend.lookup; compiled frontend bundle has 0 occurrences of lookup.disclose.io URL (anti-criterion holds).
+- ISC-8,9,10,11,12: backend api.register("lookup",...); fetch POST https://lookup.disclose.io/api/lookup body {input}; parses status/attribution/contacts; exports API (DefineAPI) + result types; AbortController timeout + non-2xx + non-JSON + catch all return {ok:false}.
+- ISC-13,14: page renders org/jurisdiction/confidence + verified-vs-unverified contacts; manual <input> + form submit runLookup.
+- ISC-15..19: fe+be package.json have @caido/sdk-* deps + build script; vite configs emit dist/frontend/script.js+style.css and dist/backend/script.js; scripts/package.mjs assembles caido-lookup.zip.
+- ISC-24: `npm install` → added 44 packages, exit 0.
+- ISC-25: `npm run build` → vite built both; `[package] Built plugin package: caido-lookup.zip`; `unzip -l` shows manifest.json + frontend/{script.js,style.css} + backend/script.js at archive root. ARTIFACT: ~/Projects/caido-lookup/caido-lookup.zip (5069 bytes).
+- ISC-26: `tsc -p backend --noEmit` exit 0; `tsc -p frontend --noEmit` exit 0. (Corroborated by Forge cross-vendor audit.)
+- ISC-27: `git log -1 --format='%an <%ae>'` = Aurora <aurora@tallpoppygroup.com>.
+- ISC-28,32: `git ls-files | grep -cE 'node_modules|^dist/|\.zip$|\.(pem|sig)$'` = 0 locally AND on remote tree.
+- ISC-29,31: `gh repo view` = PUBLIC, description set, homepageUrl=https://lookup.disclose.io.
+- ISC-30: remote `git/trees/main?recursive=1` blob list == local `git ls-files` (20 files).
+- ISC-34: no private.pem/public.pem/*.sig generated or committed; no PR opened against caido/store. Store steps documented in README only.
+
+Cross-vendor audit (Forge / GPT-5.4): clean — no bugs, no edits; every SDK contract point confirmed against pinned .d.ts files; both packages tsc exit 0.
