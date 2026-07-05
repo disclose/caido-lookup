@@ -19,7 +19,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
  * All failure modes are caught and returned as a renderable `{ ok: false }`
  * result rather than thrown, so the frontend never sees an unhandled error.
  */
-async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
+export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
   const asset = (input ?? "").trim();
 
   if (asset.length === 0) {

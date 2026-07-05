@@ -15,6 +15,7 @@
     "build:backend": "npm run build --workspace packages/backend",
     "build": "npm run build:backend && npm run build:frontend && node scripts/package.mjs",
     "typecheck": "tsc -p packages/backend/tsconfig.json --noEmit && tsc -p packages/frontend/tsconfig.json --noEmit",
+    "test": "bun test",
     "clean": "rm -rf dist packages/*/dist *.zip"
   },
   "devDependencies": {

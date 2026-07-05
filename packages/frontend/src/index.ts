@@ -34,7 +34,7 @@ const CONTACT_TYPE_LABELS: Record<string, string> = {
   convention: "Convention (unverified)",
 };
 
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -43,11 +43,11 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#039;");
 }
 
-function isHttpUrl(value: string): boolean {
+export function isHttpUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
 }
 
-function renderContact(contact: Contact): string {
+export function renderContact(contact: Contact): string {
   const typeLabel =
     CONTACT_TYPE_LABELS[contact.type] ?? contact.type ?? "contact";
   const verifiedBadge = contact.verified
@@ -81,7 +81,7 @@ function renderContact(contact: Contact): string {
   `;
 }
 
-function renderResult(result: LookupResult): string {
+export function renderResult(result: LookupResult): string {
   if (!result.ok) {
     return `
       <div class="dlk-error">
