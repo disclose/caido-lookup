@@ -66,7 +66,7 @@ This produces:
 
 ## Install in Caido
 
-1. Run `npm install && npm run build` to produce `caido-lookup.zip`.
+1. Download `caido-lookup.zip` from the [latest release](https://github.com/disclose/caido-lookup/releases/latest) — or build it yourself with `npm install && npm run build`.
 2. In Caido, open **Plugins** → **Installed** → **Install Package**.
 3. Select `caido-lookup.zip`.
 4. Caido loads the frontend and backend plugins. A **Disclosure Lookup** entry appears in the left sidebar.
