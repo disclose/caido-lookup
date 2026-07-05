@@ -62,13 +62,13 @@ This produces:
 - `dist/frontend/script.js` + `dist/frontend/style.css`
 - `dist/backend/script.js`
 - `dist/manifest.json`
-- **`caido-lookup.zip`** ← the installable plugin package (root of the repo)
+- **`plugin_package.zip`** ← the installable plugin package (root of the repo)
 
 ## Install in Caido
 
-1. Download `caido-lookup.zip` from the [latest release](https://github.com/disclose/caido-lookup/releases/latest) — or build it yourself with `npm install && npm run build`.
+1. Download `plugin_package.zip` from the [latest release](https://github.com/disclose/caido-lookup/releases/latest) — or build it yourself with `npm install && npm run build`.
 2. In Caido, open **Plugins** → **Installed** → **Install Package**.
-3. Select `caido-lookup.zip`.
+3. Select `plugin_package.zip`.
 4. Caido loads the frontend and backend plugins. A **Disclosure Lookup** entry appears in the left sidebar.
 
 > Plugins installed from a local package (rather than the official store) are unsigned. Caido will prompt you to confirm the install. See *Publishing to the Caido store* below for the signed-distribution path.

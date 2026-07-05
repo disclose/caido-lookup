@@ -6,7 +6,9 @@
 //   dist/backend/script.js
 // This script copies manifest.json into dist/ and zips
 //   dist/{manifest.json, frontend/, backend/}
-// into caido-lookup.zip at the repo root — the file you load in Caido.
+// into plugin_package.zip at the repo root — the file you load in Caido.
+// The name is a Caido store requirement: release assets must be exactly
+// plugin_package.zip + plugin_package.zip.sig.
 
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
@@ -15,7 +17,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = resolve(root, "dist");
-const zipName = "caido-lookup.zip";
+const zipName = "plugin_package.zip";
 const zipPath = resolve(root, zipName);
 
 const required = [

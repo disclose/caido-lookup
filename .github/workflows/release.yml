@@ -1,14 +1,18 @@
 name: Release
 
-# On a v* tag: build the plugin package, sign it with the Ed25519 PRIVATE_KEY
-# secret, and attach the package + signature + public key to the GitHub release.
-# The Caido store verifies caido-lookup.zip against public.pem / the store entry's
-# public_key. Ubuntu runners ship real OpenSSL 3 (Ed25519-capable).
+# Caido store release. Triggered manually (workflow_dispatch), mirroring
+# caido/starterkit-plugin's sanctioned release workflow:
+#   - the release tag is the BARE version from manifest.json (no "v" prefix),
+#     so the manifest version and the release tag always match exactly;
+#   - the release assets are exactly plugin_package.zip and
+#     plugin_package.zip.sig (Caido store naming requirement);
+#   - the package is signed with the Ed25519 PRIVATE_KEY Actions secret
+#     (matching the public_key registered in caido/store plugin_packages.json).
+# The repo's "Immutable releases" setting must be enabled so the published
+# release is immutable. Ubuntu runners ship OpenSSL 3 (Ed25519-capable).
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,8 +21,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - name: Check version
+        id: meta
+        run: |
+          VERSION=$(jq -r .version manifest.json)
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -35,13 +44,12 @@ jobs:
             exit 1
           fi
           printf '%s' "${PRIVATE_KEY}" > private_key.pem
-          openssl pkeyutl -sign -inkey private_key.pem -out caido-lookup.zip.sig -rawin -in caido-lookup.zip
-          openssl pkey -in private_key.pem -pubout -out public.pem
+          openssl pkeyutl -sign -inkey private_key.pem -out plugin_package.zip.sig -rawin -in plugin_package.zip
           rm -f private_key.pem
-      - name: Attach to release
-        uses: softprops/action-gh-release@v2
+      - name: Create release
+        uses: ncipollo/release-action@v1
         with:
-          files: |
-            caido-lookup.zip
-            caido-lookup.zip.sig
-            public.pem
+          tag: ${{ steps.meta.outputs.version }}
+          commit: ${{ github.sha }}
+          body: "Release ${{ steps.meta.outputs.version }}"
+          artifacts: "plugin_package.zip,plugin_package.zip.sig"
