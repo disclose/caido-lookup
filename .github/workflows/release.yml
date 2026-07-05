@@ -1,0 +1,47 @@
+name: Release
+
+# On a v* tag: build the plugin package, sign it with the Ed25519 PRIVATE_KEY
+# secret, and attach the package + signature + public key to the GitHub release.
+# The Caido store verifies caido-lookup.zip against public.pem / the store entry's
+# public_key. Ubuntu runners ship real OpenSSL 3 (Ed25519-capable).
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build plugin package
+        run: npm run build
+      - name: Sign package
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          if [[ -z "${PRIVATE_KEY}" ]]; then
+            echo "::error::PRIVATE_KEY secret is missing — cannot sign the release. Set it under Settings → Secrets → Actions."
+            exit 1
+          fi
+          printf '%s' "${PRIVATE_KEY}" > private_key.pem
+          openssl pkeyutl -sign -inkey private_key.pem -out caido-lookup.zip.sig -rawin -in caido-lookup.zip
+          openssl pkey -in private_key.pem -pubout -out public.pem
+          rm -f private_key.pem
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            caido-lookup.zip
+            caido-lookup.zip.sig
+            public.pem
