@@ -125,6 +125,7 @@ Ship a buildable, idiomatic, frontend+backend Caido plugin in `~/Projects/caido-
 - 2026-06-21: Network call placed in backend (not frontend) per Caido architecture + Principle "network call belongs in backend." Frontend reaches it via RPC — also satisfies anti-criterion ISC-33.
 - 2026-06-21: Delegation — Forge (GPT-5.4) auto-included at E3 to produce the plugin source idiomatically; Cato opt-in at VERIFY (security-adjacent: a tool used by security researchers, public repo). ISA + Forge + Cato = delegation floor E3≥2 met.
 - 2026-06-21: Monorepo layout with npm workspaces (packages/frontend, packages/backend) mirrors community plugins (csp-auditor, ParamFinder) and keeps one buildable tree; root script assembles the final zip.
+- 2026-07-05: **Caido store review compliance (caido/store#98, bebiksior):** package renamed `caido-lookup.zip` → `plugin_package.zip` (+`.sig`, store naming requirement); release tag is now the BARE manifest version (no `v` — the store matches manifest version to tag verbatim, per caido/starterkit-plugin); repo "Immutable releases" enabled; release.yml switched to workflow_dispatch + draft-then-publish (immutable releases reject post-publish asset uploads, so assets must ride the draft; publishing locks it). Gotcha: deleting an immutable release permanently reserves its tag name — `0.1.1` burned this way; current release is `0.1.2` (immutable, sig-verified against the store entry key). Task ISA: `MEMORY/WORK/20260705-caido-store-pr98-fixes/`.
 
 ## Verification
 
