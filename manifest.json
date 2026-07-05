@@ -1,7 +1,7 @@
 {
   "id": "caido-lookup",
   "name": "Disclosure Lookup",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Look up the security-disclosure contact for any host via lookup.disclose.io. Right-click a request to find where to report a vulnerability.",
   "author": {
     "name": "disclose.io",

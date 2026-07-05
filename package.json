@@ -1,6 +1,6 @@
 {
   "name": "caido-lookup",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Caido plugin: look up security-disclosure contacts for any host via lookup.disclose.io",
   "author": "disclose.io <hello@disclose.io>",
   "license": "MIT",
