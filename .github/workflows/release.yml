@@ -46,10 +46,14 @@ jobs:
           printf '%s' "${PRIVATE_KEY}" > private_key.pem
           openssl pkeyutl -sign -inkey private_key.pem -out plugin_package.zip.sig -rawin -in plugin_package.zip
           rm -f private_key.pem
-      - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.meta.outputs.version }}
-          commit: ${{ github.sha }}
-          body: "Release ${{ steps.meta.outputs.version }}"
-          artifacts: "plugin_package.zip,plugin_package.zip.sig"
+      # With "Immutable releases" enabled, assets cannot be added after a
+      # release is published — so create as a DRAFT with assets attached,
+      # then flip to published, which is when immutability locks in.
+      - name: Create immutable release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          gh release create "${VERSION}" plugin_package.zip plugin_package.zip.sig \
+            --target "${GITHUB_SHA}" --title "${VERSION}" --notes "Release ${VERSION}" --draft
+          gh release edit "${VERSION}" --draft=false
