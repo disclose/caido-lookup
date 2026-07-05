@@ -12,7 +12,7 @@
     "caido-lookup-backend": "*"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^26.1.0",
     "typescript": "^5.4.5",
     "vite": "^5.4.0"
   }
