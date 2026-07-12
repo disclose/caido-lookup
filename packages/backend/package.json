@@ -13,7 +13,7 @@
     "@caido/sdk-backend": "0.57.0"
   },
   "devDependencies": {
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "typescript": "^5.4.5",
     "vite": "^8.1.3"
   }
