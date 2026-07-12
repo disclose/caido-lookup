@@ -10,7 +10,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@caido/sdk-backend": "0.57.0"
+    "@caido/sdk-backend": "0.57.1"
   },
   "devDependencies": {
     "@types/node": "^26.1.0",
