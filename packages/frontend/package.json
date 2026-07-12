@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@caido/sdk-frontend": "0.56.2",
+    "@caido/sdk-frontend": "0.57.1",
     "caido-lookup-backend": "*"
   },
   "devDependencies": {
