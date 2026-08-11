@@ -27,7 +27,7 @@ jobs:
         run: |
           VERSION=$(jq -r .version manifest.json)
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
