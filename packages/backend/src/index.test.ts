@@ -13,6 +13,30 @@ const RECORDED: LookupApiResponse = {
     { type: "bug_bounty", value: "https://www.cloudflare.com/disclosure/", confidence: "high", verified: true, label: "Cloudflare (Bounty)" },
     { type: "security_txt", value: "https://www.cloudflare.com/abuse/", confidence: "high", verified: true },
   ],
+  contactGroups: [
+    {
+      entity: "Cloudflare",
+      relation: "self",
+      routeClass: "first_party",
+      rationale: "First-party reporting route.",
+      contacts: [
+        { type: "bug_bounty", value: "https://www.cloudflare.com/disclosure/", confidence: "high", verified: true },
+      ],
+    },
+    {
+      entity: "CERT/CC",
+      relation: "coordinator",
+      routeClass: "coordinator",
+      contacts: [{ type: "cert", value: "https://kb.cert.org/vuls/report/" }],
+    },
+  ],
+  routeSummary: {
+    routeClass: "first_party",
+    headline: "First-party reporting route found",
+    firstPartyFound: true,
+    ownerRouteFound: true,
+    coordinatorAvailable: true,
+  },
 };
 
 const sdk = { console: { log: () => {} } } as any;
@@ -44,6 +68,8 @@ describe("backend lookup()", () => {
       expect(r.attribution.organization).toBe("Cloudflare");
       expect(r.contacts).toHaveLength(2);
       expect(r.contacts[0].verified).toBe(true);
+      expect(r.contactGroups.map((group) => group.entity)).toEqual(["Cloudflare", "CERT/CC"]);
+      expect(r.routeSummary?.routeClass).toBe("first_party");
     }
   });
 
@@ -55,13 +81,32 @@ describe("backend lookup()", () => {
     expect(sentBody.input).toBe("github.com");
   });
 
+  test("identifies the exact client without sending authorization", async () => {
+    let sentHeaders: Headers | undefined;
+    mockFetch((_url, init) => {
+      sentHeaders = new Headers(init.headers);
+      return Response.json(RECORDED);
+    });
+    await lookup(sdk, "github.com");
+    expect(sentHeaders?.get("user-agent")).toBe(
+      "caido-lookup/0.2.0 (+https://github.com/disclose/caido-lookup)",
+    );
+    expect(sentHeaders?.get("x-lookup-client")).toBe("caido-lookup/0.2.0");
+    expect(sentHeaders?.get("authorization")).toBeNull();
+  });
+
   test("non-2xx JSON response becomes a renderable ok:false", async () => {
-    mockFetch(() => Response.json({ status: "rate_limited" }, { status: 429 }));
+    mockFetch(() => Response.json(
+      { status: "rate_limited" },
+      { status: 429, headers: { "RateLimit-Limit": "600", "Retry-After": "7" } },
+    ));
     const r = await lookup(sdk, "cloudflare.com");
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.error).toContain("rate_limited");
       expect(r.error).toContain("429");
+      expect(r.error).toContain("600");
+      expect(r.error).toContain("7s");
     }
   });
 
@@ -90,6 +135,9 @@ describe("backend lookup()", () => {
     mockFetch(() => Response.json({ status: "partial", attribution: {} }));
     const r = await lookup(sdk, "x.com");
     expect(r.ok).toBe(true);
-    if (r.ok) expect(r.contacts).toEqual([]);
+    if (r.ok) {
+      expect(r.contacts).toEqual([]);
+      expect(r.contactGroups).toEqual([]);
+    }
   });
 });

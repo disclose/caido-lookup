@@ -24,7 +24,7 @@
 
 Look up the **security-disclosure contact for any host** without leaving [Caido](https://caido.io).
 
-Right-click a request (or a row in HTTP History) and choose **Find disclosure contact**. The plugin queries [lookup.disclose.io](https://lookup.disclose.io) and shows you the owning organization, jurisdiction, attribution confidence, and a ranked list of where to report a vulnerability — `security.txt`, bug-bounty programs, VDP emails, PSIRT directories, and national CERTs — with each contact marked **verified** or **unverified**.
+Right-click a request (or a row in HTTP History) and choose **Find disclosure contact**. The plugin queries [lookup.disclose.io](https://lookup.disclose.io) and shows you the owning organization, jurisdiction, attribution confidence, and server-ranked route groups — first party, authorized agent, responsible operator, related party, inferred lead, then coordinator — with the legacy flat contact list retained as a fallback.
 
 > A [disclose.io](https://disclose.io) project. The lookup API is free, CORS-open, and unauthenticated — no key or account required.
 
@@ -100,7 +100,8 @@ This produces:
 - **From a request:** right-click in a request pane, or on a row in **HTTP History**, and choose **Find disclosure contact**. The Disclosure Lookup page opens with the result for that host.
 - **Manually:** open the **Disclosure Lookup** sidebar page and type any asset (domain, IP, URL, email, package, repository, …) into the input box.
 
-Each contact is tagged:
+Route groups stay in the API's authoritative order so the UI never promotes a
+generic or coordinator contact above an owner route. Each contact is tagged:
 
 - **verified** — derived from an authoritative source (`security.txt`, `SECURITY.md`, DioDB, PSIRT directories).
 - **unverified** — a heuristic guess (e.g. the `security@` / `abuse@` convention). Confirm before relying on it.

@@ -5,7 +5,7 @@ import type {
   RequestMeta,
 } from "@caido/sdk-frontend";
 
-import type { Contact, LookupResult } from "caido-lookup-backend";
+import type { Contact, ContactGroup, LookupResult } from "caido-lookup-backend";
 
 import type { CaidoSDK } from "./types";
 
@@ -67,6 +67,9 @@ export function renderContact(contact: Contact): string {
     : `<span class="dlk-value">${escapeHtml(rawValue)}</span>`;
 
   const note = contact.label ? `<div class="dlk-note">${escapeHtml(contact.label)}</div>` : "";
+  const deliveryAgent = contact.deliveryAgent
+    ? `<div class="dlk-note">Delivered by ${escapeHtml(contact.deliveryAgent)}</div>`
+    : "";
 
   return `
     <li class="dlk-contact">
@@ -77,7 +80,29 @@ export function renderContact(contact: Contact): string {
       </div>
       <div class="dlk-contact__value">${value}</div>
       ${note}
+      ${deliveryAgent}
     </li>
+  `;
+}
+
+export function renderContactGroup(group: ContactGroup): string {
+  const scope = group.scopeNote
+    ? `<p class="dlk-group__note">${escapeHtml(group.scopeNote)}</p>`
+    : "";
+  const rationale = group.rationale
+    ? `<p class="dlk-group__note">${escapeHtml(group.rationale)}</p>`
+    : "";
+  return `
+    <section class="dlk-group" data-route-class="${escapeHtml(group.routeClass)}">
+      <div class="dlk-group__head">
+        <h3>${escapeHtml(group.entity)}</h3>
+        <span class="dlk-route">${escapeHtml(group.routeClass.replace(/_/g, " "))}</span>
+        <span class="dlk-relation">${escapeHtml(group.relation.replace(/_/g, " "))}</span>
+      </div>
+      ${scope}
+      ${rationale}
+      <ul class="dlk-contacts">${group.contacts.map(renderContact).join("")}</ul>
+    </section>
   `;
 }
 
@@ -104,11 +129,15 @@ export function renderResult(result: LookupResult): string {
   const statusClass = `dlk-status--${escapeHtml(result.status)}`;
 
   const contactsHtml =
-    result.contacts.length > 0
-      ? `<ul class="dlk-contacts">${result.contacts
-          .map(renderContact)
-          .join("")}</ul>`
+    result.contactGroups.length > 0
+      ? `<div class="dlk-groups">${result.contactGroups.map(renderContactGroup).join("")}</div>`
+      : result.contacts.length > 0
+      ? `<ul class="dlk-contacts">${result.contacts.map(renderContact).join("")}</ul>`
       : `<p class="dlk-empty">No disclosure contacts found for this asset.</p>`;
+
+  const routeSummary = result.routeSummary?.headline
+    ? `<p class="dlk-route-summary">${escapeHtml(result.routeSummary.headline)}</p>`
+    : "";
 
   return `
     <div class="dlk-result">
@@ -130,6 +159,7 @@ export function renderResult(result: LookupResult): string {
           }
         </div>
       </div>
+      ${routeSummary}
       <h3 class="dlk-contacts__title">Disclosure contacts</h3>
       ${contactsHtml}
     </div>

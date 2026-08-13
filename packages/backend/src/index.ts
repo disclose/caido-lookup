@@ -10,6 +10,7 @@ import type {
 
 const LOOKUP_ENDPOINT = "https://lookup.disclose.io/api/lookup";
 const REQUEST_TIMEOUT_MS = 30_000;
+const CLIENT_ID = "caido-lookup/0.2.0";
 
 /**
  * Calls the lookup.disclose.io attribution API for a single asset.
@@ -35,6 +36,8 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        "User-Agent": `${CLIENT_ID} (+https://github.com/disclose/caido-lookup)`,
+        "X-Lookup-Client": CLIENT_ID,
       },
       body: JSON.stringify({ input: asset }),
       signal: controller.signal,
@@ -54,10 +57,15 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
     // Non-2xx responses are JSON ErrorEnvelopes that still carry a `status`.
     if (!response.ok) {
       const status = data.status ?? "error";
+      const retryAfter = response.headers.get("retry-after");
+      const limit = response.headers.get("ratelimit-limit");
+      const rateDetail = response.status === 429
+        ? ` Limit${limit ? ` ${limit}` : ""}${retryAfter ? `; retry after ${retryAfter}s` : ""}.`
+        : "";
       return {
         ok: false,
         input: asset,
-        error: `Lookup failed (${status}, HTTP ${response.status}).`,
+        error: `Lookup failed (${status}, HTTP ${response.status}).${rateDetail}`,
       };
     }
 
@@ -78,6 +86,8 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
       requestId: data.requestId,
       attribution: data.attribution ?? {},
       contacts,
+      contactGroups: Array.isArray(data.contactGroups) ? data.contactGroups : [],
+      routeSummary: data.routeSummary,
     };
   } catch (err) {
     const aborted = err instanceof Error && err.name === "AbortError";
@@ -97,8 +107,12 @@ export type {
   Attribution,
   Confidence,
   Contact,
+  ContactEntityRelation,
+  ContactGroup,
+  ContactRouteClass,
   LookupResult,
   LookupStatus,
+  RouteSummary,
 } from "./types";
 
 // The backend API surface exposed over the RPC bridge.
