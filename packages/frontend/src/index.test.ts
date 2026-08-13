@@ -1,5 +1,5 @@
 import { test, expect, describe } from "bun:test";
-import { escapeHtml, isHttpUrl, renderContact, renderResult } from "./index.ts";
+import { escapeHtml, isHttpUrl, renderContact, renderContactGroup, renderResult } from "./index.ts";
 import type { Contact, LookupResult } from "caido-lookup-backend";
 
 describe("escapeHtml", () => {
@@ -57,6 +57,8 @@ describe("renderResult", () => {
     ok: true, input: "cloudflare.com", assetType: "domain", status: "complete", requestId: "r",
     attribution: { organization: "Cloudflare", jurisdiction: "US", confidence: "high" },
     contacts: [{ type: "bug_bounty", value: "https://x/y", confidence: "high", verified: true }],
+    contactGroups: [],
+    routeSummary: undefined,
   };
 
   test("renders org, jurisdiction, status and the contact list", () => {
@@ -84,5 +86,39 @@ describe("renderResult", () => {
     const html = renderResult({ ...ok, attribution: { organization: `<script>alert(1)</script>` } });
     expect(html).not.toContain("<script>alert(1)</script>");
     expect(html).toContain("&lt;script&gt;");
+  });
+
+  test("renders server groups in server order and shows the route headline", () => {
+    const html = renderResult({
+      ...ok,
+      routeSummary: {
+        routeClass: "first_party",
+        headline: "First-party reporting route found",
+        firstPartyFound: true,
+        ownerRouteFound: true,
+        coordinatorAvailable: true,
+      },
+      contactGroups: [
+        { entity: "Owner", relation: "self", routeClass: "first_party", contacts: [] },
+        { entity: "CERT/CC", relation: "coordinator", routeClass: "coordinator", contacts: [] },
+      ],
+    });
+    expect(html.indexOf("Owner")).toBeLessThan(html.indexOf("CERT/CC"));
+    expect(html).toContain("First-party reporting route found");
+  });
+});
+
+describe("renderContactGroup", () => {
+  test("escapes route metadata and renders delivery-agent context", () => {
+    const html = renderContactGroup({
+      entity: `<img src=x onerror=alert(1)>`,
+      relation: "disclosure_agent",
+      routeClass: "authorized_agent",
+      rationale: `<script>alert(1)</script>`,
+      contacts: [{ type: "bug_bounty", value: "https://x.test", deliveryAgent: "HackerOne" }],
+    });
+    expect(html).not.toContain("<script>");
+    expect(html).not.toContain("<img src=x");
+    expect(html).toContain("Delivered by HackerOne");
   });
 });

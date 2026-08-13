@@ -4,6 +4,26 @@
 // view — only the fields the plugin renders are typed.
 
 export type Confidence = "high" | "medium" | "low";
+export type ContactRouteClass =
+  | "first_party"
+  | "authorized_agent"
+  | "responsible_operator"
+  | "related_party"
+  | "inferred"
+  | "coordinator";
+
+export type ContactEntityRelation =
+  | "self"
+  | "vendor"
+  | "host"
+  | "parent"
+  | "subsidiary"
+  | "maintainer"
+  | "publisher"
+  | "build_origin"
+  | "identifier_assignee"
+  | "disclosure_agent"
+  | "coordinator";
 
 /** Engine statuses plus the server-added non-2xx statuses. */
 export type LookupStatus =
@@ -28,6 +48,30 @@ export interface Contact {
   source?: string;
   label?: string;
   verified?: boolean;
+  entity?: string;
+  entityKey?: string;
+  relation?: ContactEntityRelation;
+  routeClass?: ContactRouteClass;
+  deliveryAgent?: string;
+  authoritative?: boolean;
+}
+
+export interface ContactGroup {
+  entity: string;
+  entityKey?: string;
+  relation: ContactEntityRelation;
+  routeClass: ContactRouteClass;
+  scopeNote?: string;
+  rationale?: string;
+  contacts: Contact[];
+}
+
+export interface RouteSummary {
+  routeClass: ContactRouteClass;
+  headline: string;
+  firstPartyFound: boolean;
+  ownerRouteFound: boolean;
+  coordinatorAvailable: boolean;
 }
 
 /** Raw API response (partial). */
@@ -39,6 +83,8 @@ export interface LookupApiResponse {
   hasErrors?: boolean;
   attribution?: Attribution;
   contacts?: Contact[];
+  contactGroups?: ContactGroup[];
+  routeSummary?: RouteSummary;
 }
 
 /**
@@ -54,6 +100,8 @@ export type LookupResult =
       requestId: string | undefined;
       attribution: Attribution;
       contacts: Contact[];
+      contactGroups: ContactGroup[];
+      routeSummary: RouteSummary | undefined;
     }
   | {
       ok: false;

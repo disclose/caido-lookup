@@ -145,6 +145,52 @@
   opacity: 0.6;
 }
 
+.dlk-route-summary {
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+.dlk-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.dlk-group {
+  padding: 0.85rem;
+  border-left: 3px solid var(--c-fg-primary, #60a5fa);
+  border-radius: 8px;
+  background: var(--c-bg-subtle, rgba(255, 255, 255, 0.02));
+}
+
+.dlk-group__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.55rem;
+}
+
+.dlk-group__head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.dlk-route,
+.dlk-relation {
+  padding: 0.08rem 0.45rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.dlk-group__note {
+  margin: 0 0 0.55rem;
+  opacity: 0.72;
+  line-height: 1.35;
+}
+
 .dlk-contacts {
   list-style: none;
   margin: 0;
