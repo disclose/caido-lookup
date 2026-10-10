@@ -89,9 +89,9 @@ describe("backend lookup()", () => {
     });
     await lookup(sdk, "github.com");
     expect(sentHeaders?.get("user-agent")).toBe(
-      "caido-lookup/0.2.0 (+https://github.com/disclose/caido-lookup)",
+      "caido-lookup/0.2.1 (+https://github.com/disclose/caido-lookup)",
     );
-    expect(sentHeaders?.get("x-lookup-client")).toBe("caido-lookup/0.2.0");
+    expect(sentHeaders?.get("x-lookup-client")).toBe("caido-lookup/0.2.1");
     expect(sentHeaders?.get("authorization")).toBeNull();
   });
 
@@ -129,6 +129,31 @@ describe("backend lookup()", () => {
     const r = await lookup(sdk, "cloudflare.com");
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toMatch(/timed out/i);
+  });
+
+  test("a 503 busy response is retried once after Retry-After", async () => {
+    let calls = 0;
+    mockFetch(() => {
+      calls++;
+      return calls === 1
+        ? Response.json({ status: "error" }, { status: 503, headers: { "Retry-After": "1" } })
+        : Response.json(RECORDED);
+    });
+    const r = await lookup(sdk, "github.com");
+    expect(calls).toBe(2);
+    expect(r.ok).toBe(true);
+  });
+
+  test("a repeated 503 surfaces a busy message, not a bare failure", async () => {
+    let calls = 0;
+    mockFetch(() => {
+      calls++;
+      return Response.json({ status: "error" }, { status: 503, headers: { "Retry-After": "1" } });
+    });
+    const r = await lookup(sdk, "github.com");
+    expect(calls).toBe(2);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/busy; try again in 1s/i);
   });
 
   test("missing contacts array degrades to []", async () => {
