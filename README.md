@@ -38,6 +38,17 @@ Right-click a request (or a row in HTTP History) and choose **Find disclosure co
 
 The network call runs in the plugin's **backend** (Caido's sandboxed JavaScript runtime), which keeps the egress out of the Caido UI process. The frontend talks to the backend over Caido's typed RPC bridge.
 
+## What this plugin sends
+
+The plugin uses one external service, [lookup.disclose.io](https://lookup.disclose.io), and only when you ask it to (a right-click action, the command palette, or the input box on its page). Nothing runs on load, on navigation, or in the background.
+
+- **Sent:** a single `POST https://lookup.disclose.io/api/lookup` carrying `{ "input": "<asset>" }`, where `<asset>` is the host of the request you right-clicked, or the text you typed. No request body, headers, cookies, response data or project information leaves Caido.
+- **Client identifier:** the request carries `User-Agent: caido-lookup/<version>` and an `X-Lookup-Client` header with the same value. disclose.io uses this for aggregate per-client usage counts (how many lookups came from the Caido plugin versus the CLI, the Burp extension and so on). It identifies the plugin, not you or your Caido instance.
+- **Stored on your machine:** nothing. The plugin keeps no history and writes no files.
+- **Account or payment:** none. The lookup API is free and unauthenticated.
+
+If you need to keep target hostnames inside your own network, do not use this plugin against those targets.
+
 ## Architecture
 
 ```
@@ -88,12 +99,21 @@ This produces:
 
 ## Install in Caido
 
-1. Download `plugin_package.zip` from the [latest release](https://github.com/disclose/caido-lookup/releases/latest) — or build it yourself with `npm install && npm run build`.
+**From the Community Store (recommended):**
+
+1. In Caido, open **Plugins** → **Community Store**.
+2. Find **Disclosure Lookup** and click **Install**.
+3. A **Disclosure Lookup** entry appears in the left sidebar.
+
+Store installs are signed releases: Caido verifies each release against the public key registered for this plugin in [`caido/store`](https://github.com/caido/store/blob/main/plugin_packages.json), and new versions appear in the store automatically when a release is published here.
+
+**From a package file:**
+
+1. Download `plugin_package.zip` from the [latest release](https://github.com/disclose/caido-lookup/releases/latest), or build it yourself with `npm install && npm run build`.
 2. In Caido, open **Plugins** → **Installed** → **Install Package**.
 3. Select `plugin_package.zip`.
-4. Caido loads the frontend and backend plugins. A **Disclosure Lookup** entry appears in the left sidebar.
 
-> Plugins installed from a local package (rather than the official store) are unsigned. Caido will prompt you to confirm the install. See *Publishing to the Caido store* below for the signed-distribution path.
+> Plugins installed from a local package are treated as unsigned. Caido will prompt you to confirm the install. See *Releasing to the Caido store* below for how signed releases are produced.
 
 ## Usage
 
@@ -106,44 +126,18 @@ generic or coordinator contact above an owner route. Each contact is tagged:
 - **verified** — derived from an authoritative source (`security.txt`, `SECURITY.md`, DioDB, PSIRT directories).
 - **unverified** — a heuristic guess (e.g. the `security@` / `abuse@` convention). Confirm before relying on it.
 
-## Publishing to the Caido store (not yet done)
+## Releasing to the Caido store
 
-The official store registry is the GitHub repository [`caido/store`](https://github.com/caido/store). Plugins are distributed as **Ed25519-signed** GitHub releases. To submit this plugin:
+This plugin is listed in the [Caido Community Store](https://github.com/caido/store) as `caido-lookup` (added in [caido/store#98](https://github.com/caido/store/pull/98), July 2026). The store reads this repository's GitHub releases, so publishing a new version is a release here, not a new store submission. Maintainer steps:
 
-1. **Generate an Ed25519 key-pair** (one key-pair per plugin):
+1. **Bump the version** in `manifest.json`, the root `package.json`, and `CLIENT_ID` in `packages/backend/src/index.ts`. All three must match. The release tag is the bare manifest version (for example `0.2.1`, no `v`), and the store rejects a release whose tag and manifest version differ.
+2. **Merge to `main`**, then run the **Release** workflow from the Actions tab (`workflow_dispatch`). It builds `plugin_package.zip`, signs it with the Ed25519 `PRIVATE_KEY` repository secret, and publishes an **immutable** GitHub release with exactly `plugin_package.zip` and `plugin_package.zip.sig` attached.
+3. **Check the release** shows as immutable with both assets. Immutable releases cannot be edited or deleted, and a deleted tag can never be reused, so the version bump in step 1 has to be right the first time.
+4. Caido picks the new release up automatically; users see the update in **Plugins** → **Community Store**.
 
-   ```bash
-   openssl genpkey -algorithm ed25519 -out private.pem
-   openssl pkey -in private.pem -pubout -out public.pem
-   ```
+The signing key pair is one per plugin. The public half is registered in `plugin_packages.json`; the private half lives only in the `PRIVATE_KEY` Actions secret and is excluded from git by `.gitignore` (`*.pem`, `*.sig`).
 
-   Keep `private.pem` secret — store it as a GitHub Actions secret named `PRIVATE_KEY`. **Never commit it** (`.gitignore` already excludes `*.pem`).
-
-2. **Enable immutable releases** on the GitHub repo (Settings → General → Releases).
-
-3. **Create a signed release** — a release workflow signs the built plugin package with the private key and attaches the `.sig` file to the GitHub release.
-
-4. **Open a PR to `caido/store`** adding an entry to [`plugin_packages.json`](https://github.com/caido/store/blob/main/plugin_packages.json):
-
-   ```json
-   {
-     "id": "caido-lookup",
-     "name": "Disclosure Lookup",
-     "license": "MIT",
-     "description": "Look up the security-disclosure contact for any host via lookup.disclose.io.",
-     "author": {
-       "name": "disclose.io",
-       "email": "hello@disclose.io",
-       "url": "https://disclose.io"
-     },
-     "public_key": "<BASE64 BODY OF public.pem, no BEGIN/END lines>",
-     "repository": "disclose/caido-lookup"
-   }
-   ```
-
-5. Sign the [Contributor License Agreement](https://cla-assistant.io/caido/store) when the bot prompts, then wait for the Caido team's review.
-
-Full reference: the Caido [*Submit to Store*](https://developer.caido.io/guides/distribution/store.html) and [*Set Up Repository*](https://developer.caido.io/guides/distribution/repository.html) guides.
+Full reference: the Caido [*Submit to Store*](https://developer.caido.io/plugins/guides/store.html) and [*Set Up Repository*](https://developer.caido.io/plugins/guides/repository.html) guides, and the [Developer Policy](https://developer.caido.io/policy.html).
 
 ## License
 
