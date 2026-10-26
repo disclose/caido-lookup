@@ -9,8 +9,15 @@ import type {
 } from "./types";
 
 const LOOKUP_ENDPOINT = "https://lookup.disclose.io/api/lookup";
-const REQUEST_TIMEOUT_MS = 30_000;
-const CLIENT_ID = "caido-lookup/0.2.0";
+// A first-time (uncached) lookup for a large organization can take 30 to 40s
+// server-side, so the client deadline must sit comfortably above that.
+const REQUEST_TIMEOUT_MS = 60_000;
+// The service sheds load with 503 + Retry-After when every lookup slot is busy.
+// Retry once after the advertised delay (capped) before reporting failure.
+const BUSY_RETRY_MAX_WAIT_S = 15;
+const CLIENT_ID = "caido-lookup/0.2.1";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Calls the lookup.disclose.io attribution API for a single asset.
@@ -31,7 +38,7 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(LOOKUP_ENDPOINT, {
+    const send = () => fetch(LOOKUP_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,6 +49,17 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
       body: JSON.stringify({ input: asset }),
       signal: controller.signal,
     });
+
+    let response = await send();
+    if (response.status === 503) {
+      const advertised = Number.parseInt(response.headers.get("retry-after") ?? "", 10);
+      const waitS = Number.isFinite(advertised) && advertised > 0
+        ? Math.min(advertised, BUSY_RETRY_MAX_WAIT_S)
+        : 5;
+      sdk.console.log(`[caido-lookup] ${asset} -> service busy, retrying in ${waitS}s`);
+      await sleep(waitS * 1000);
+      response = await send();
+    }
 
     let data: LookupApiResponse;
     try {
@@ -61,7 +79,9 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
       const limit = response.headers.get("ratelimit-limit");
       const rateDetail = response.status === 429
         ? ` Limit${limit ? ` ${limit}` : ""}${retryAfter ? `; retry after ${retryAfter}s` : ""}.`
-        : "";
+        : response.status === 503
+          ? ` The service is busy${retryAfter ? `; try again in ${retryAfter}s` : "; try again shortly"}.`
+          : "";
       return {
         ok: false,
         input: asset,
@@ -92,7 +112,7 @@ export async function lookup(sdk: SDK, input: string): Promise<LookupResult> {
   } catch (err) {
     const aborted = err instanceof Error && err.name === "AbortError";
     const message = aborted
-      ? `Lookup timed out after ${REQUEST_TIMEOUT_MS / 1000}s.`
+      ? `Lookup timed out after ${REQUEST_TIMEOUT_MS / 1000}s. First-time lookups for large organizations can be slow; try again.`
       : `Lookup request failed: ${
           err instanceof Error ? err.message : String(err)
         }`;
